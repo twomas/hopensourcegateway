@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang='en'>
+	<head>
+		<!-- For mobile devices. -->
+		<title>Automower powered by Google maps</title>
+		<style type="text/css">
+		#map_canvas {
+			width:100%;
+			height:100%;
+			position: absolute;
+			top: 0px;
+			left: 0px;
+		</style>
+		<!-- Key from https://console.cloud.google.com/google/maps-apis/apis/maps-backend.googleapis.com/credentials?project=hopensourcegateway-220820 -->
+		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCAMZl7Kc9zFbha1urYLS8qp-5sMpc56D4"></script>
+	</head>
+	<body>
+		<div id="map_canvas"></div>
+		<script type="text/javascript">
+		
+		function storeCoordinate(xVal, yVal, array) {
+			array.push({x: xVal, y: yVal});
+		};
+		
+		var myZoom = 20;
+		var coords = [];
+		
+		function readTextFile(file) {
+			var rawFile = new XMLHttpRequest();
+			rawFile.open("GET", file, false);
+			rawFile.onreadystatechange = function () {
+				if (rawFile.readyState === 4) {
+					if (rawFile.status === 200 || rawFile.status == 0) {
+						var allText = rawFile.responseText;
+						allText = allText.replace(/(\r\n\t|\n|\r\t)/gm,","); // Replace line breaks with ,
+						console.log(allText); 
+						var array = allText.split(',');
+						for (var i = 0; i < array.length; i++) {
+							storeCoordinate(array[i], array[i+1], coords);
+							i++;
+						}
+					}
+				}
+			}
+			rawFile.send(null);
+		}
+		
+		try {
+			readTextFile('positions.csv');
+		} catch(error) {
+			console.error(error);
+		}
+		
+		var idx = coords.length - 2;
+		try {
+			var myCenter = new google.maps.LatLng(coords[idx].x,coords[idx].y);
+		} catch(error) {
+
+		}
+
+		function initialize() {
+			var mapProp = {
+			center:myCenter,
+			zoom:myZoom,
+			mapTypeId:google.maps.MapTypeId.ROADMAP
+		};
+
+			var map = new google.maps.Map(document.getElementById("map_canvas"), mapProp);
+			
+			for (var i = 0; i < coords.length; i++) {
+				if (i < coords.length - 2) { 
+					var marker = new google.maps.Marker({
+						position: new google.maps.LatLng(coords[i].x, coords[i].y),
+						icon: 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png'
+					});
+					marker.setMap(map);
+				} else {
+					var marker = new google.maps.Marker({
+						position: new google.maps.LatLng(coords[i].x, coords[i].y),
+						icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+					});
+					marker.setAnimation(google.maps.Animation.BOUNCE); // Latest marker
+					marker.setMap(map);
+				}
+			}                
+		}
+
+		google.maps.event.addDomListener(window, 'load', initialize);
+		</script>
+	</body>
+</html>
