@@ -1,7 +1,7 @@
 #!/bin/bash
 
 am_cmd() {
-   	result=$(husmow --json status | python -mjson.tool)
+   	result=$(./husmow_venv/bin/husmow --json status | python -mjson.tool)
 }
 
 store_positions() {
