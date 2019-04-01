@@ -1,7 +1,7 @@
 #!/bin/bash
 
 am_cmd() {
-   	result=$(./husmow_venv/bin/husmow --json status | python -mjson.tool)
+   	result=$(./husmow_venv/bin/husmow --json status)
 }
 
 store_positions() {
@@ -24,18 +24,17 @@ while true
 do
 	am_cmd
 	if echo "$result" | grep -q "latitude"; then
-		track=$(echo $result | grep -E 'mowerStatus')
-		battery=$(echo "$result" | grep -E 'batteryPercent' | tr -d '"' | tr ',' ' ' | tr -s ' ' )
-		output=$(echo "$result" | grep -E 'latitude|longitude' | tr '"' ':' )
-		mod=$(echo "$output" | egrep 'latitude|longitude' | paste - - | tr -d '\t' | tr -d ' ' | tr -d ':' | cut -f1,2 -d',' )
+		track=$(echo $result | grep -oP '"mowerStatus": "\K[^"]*')
+		battery=$(echo "$result" | grep -oP '"batteryPercent": \K[^,]*')
+		mod=$(echo "$result" | grep -E 'latitude|longitude' | paste - - | tr -d '"' | tr -d ':' | tr -d ' ' | tr -d '\t' | cut -f1,2 -d',')
 		mod=${mod//latitude/}
 		mod=${mod//longitude/}
 		positionsNew=$mod
 		compare_positions
-		echo $(date) "Husqvarna$battery"
+		echo $(date) "Husqvarna $track $battery%"
 	fi
 	
-	if echo "$track" | grep -q "OK_CUTTING"; then
+	if echo "$track" | grep -q "OK_"; then
 		sleep 30
 	else
 		sleep 300
