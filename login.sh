@@ -1,6 +1,11 @@
 #!/bin/bash
 
-rm token.cfg
+token=token.cfg
+
+if test -f ${token}; then
+    echo "Removed token"
+	rm ${token}
+fi
 
 echo " "
 echo "Enter username:"
