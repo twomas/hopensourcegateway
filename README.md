@@ -1,5 +1,8 @@
 # hopensourcegateway
 
+This can also be done with Windows Subsystem for Linux!<br>
+See screenshots below.
+
 A demo of storing positions from your Husqvarna automower with gps.
 View plots in Google maps via web server.
 This demo has dependency to https://github.com/chrisz/pyhusmow.
