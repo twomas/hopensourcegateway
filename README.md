@@ -21,9 +21,11 @@ To view an example, screenshot here http://bredhammarconsulting.com/info/
     
 ## Start recording plots
     ./store-am-positions.sh
+    or as background: nohup $(pwd)/store-am-positions.sh &
 
 ## Start a web server to view plots
     ./start-web-server.sh
+    or as background: nohup $(pwd)/start-web-server.sh &
 
 # Screenshots
 ![Plotting](http://wp.bredhammarconsulting.com/wp-content/uploads/2016/06/automower-plot-300x171.png)
