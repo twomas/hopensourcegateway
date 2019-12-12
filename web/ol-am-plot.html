@@ -1,0 +1,75 @@
+<html lang='en'>
+	<head>
+		<!-- For mobile devices. -->
+		<title>Automower powered by OpenStreetMap</title>
+		<style type="text/css">
+		#mapdiv {
+			width:100%;
+			height:100%;
+			position: absolute;
+			top: 0px;
+			left: 0px;
+		</style>
+	</head>
+
+	<body>
+		<div id="map_canvas"></div>
+		<script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+		<script>
+	  
+		function storeCoordinate(xVal, yVal, array) {
+			array.push({x: xVal, y: yVal});
+		};
+		
+		var myZoom = 17;
+		var coords = [];
+		
+		function readTextFile(file) {
+			var rawFile = new XMLHttpRequest();
+			rawFile.open("GET", file, false);
+			rawFile.onreadystatechange = function () {
+				if (rawFile.readyState === 4) {
+					if (rawFile.status === 200 || rawFile.status == 0) {
+						var allText = rawFile.responseText;
+						allText = allText.replace(/(\r\n\t|\n|\r\t)/gm,","); // Replace line breaks with ,
+						console.log(allText); 
+						var array = allText.split(',');
+						for (var i = 0; i < array.length; i++) {
+							storeCoordinate(array[i], array[i+1], coords);
+							i++;
+						}
+					}
+				}
+			}
+			rawFile.send(null);
+		}
+		
+		try {
+			readTextFile('positions.csv');
+		} catch(error) {
+			console.error(error);
+		}
+		 
+		map = new OpenLayers.Map("map_canvas");
+		map.addLayer(new OpenLayers.Layer.OSM());
+		
+		for (var i = 0; i < coords.length; i++) {
+			if (i < coords.length) { 
+				var lonLat = new OpenLayers.LonLat( coords[i].y, coords[i].x )
+					  .transform(
+						new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+						map.getProjectionObject() // to Spherical Mercator Projection
+					  );
+
+				var markers = new OpenLayers.Layer.Markers( "Markers" );
+				map.addLayer(markers);
+				
+				markers.addMarker(new OpenLayers.Marker(lonLat));
+				
+				map.setCenter (lonLat, myZoom);
+			}
+		}
+		
+		</script>
+	</body>
+</html>
